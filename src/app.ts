@@ -4,6 +4,7 @@ import morgan from 'morgan'
 
 import { docsRouter } from './routes/docs'
 import { apiV1Router } from './routes/api-v1'
+import { errorHandler } from './middlewares'
 
 const app: Express = express()
 
@@ -15,8 +16,10 @@ app.use(morgan('dev'))
 app.use('/docs', docsRouter)
 app.use('/api/v1.0', apiV1Router)
 
-app.get('/', (req, res) => {
+app.use('/', (req, res) => {
   res.redirect('/docs')
 })
+
+app.use(errorHandler)
 
 export { app }
