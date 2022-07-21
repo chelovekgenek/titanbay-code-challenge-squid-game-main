@@ -13,7 +13,19 @@ deathRouter.get(
   asyncHandler(async (_req: Request, res: Response) => {
     const data = await deathService.getAll()
 
-    res.send({ data })
+    res.send(data)
+  })
+)
+
+/**
+ * Sync entity records with 3rd party data feed
+ */
+deathRouter.put(
+  '/sync',
+  asyncHandler(async (req: Request, res: Response) => {
+    const data = await deathService.sync()
+
+    res.send(data)
   })
 )
 
@@ -22,29 +34,6 @@ deathRouter.get(
  */
 deathRouter.get('/:id', async (req: Request, res: Response) => {
   const data = await deathService.getById(Number(req.params.id))
-
-  res.send({ data })
-})
-
-/**
- * Creates an entity record
- */
-deathRouter.post(
-  '/',
-  asyncHandler(async (req: Request, res: Response) => {
-    const { number, name } = req.body
-    const data = await deathService.create({ number, name })
-
-    res.send({ data })
-  })
-)
-
-/**
- * Updates an entity record
- */
-deathRouter.put('/', async (req: Request, res: Response) => {
-  const { id, number, name } = req.body
-  const data = await deathService.upsert({ id, number, name })
 
   res.send(data)
 })

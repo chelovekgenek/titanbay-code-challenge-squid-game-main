@@ -5,6 +5,7 @@ import { Sequelize, Options, RetryOptions } from 'sequelize'
 import { Game, gameModelAttributes } from './game'
 import { Player, playerModelAttributes } from './player'
 import { Guard, guardModelAttributes } from './guard'
+import { Death, deathModelAttributes } from './death'
 
 const config = require(__dirname + '/../config/config.js')[process.env.NODE_ENV]
 
@@ -12,8 +13,8 @@ const sequelizeOptions: Options = {
   retry: {
     match: [/ConnectionError/, /ConnectionRefusedError/, /ECONNREFUSED/],
     max: 10,
-    backoffBase: 1000
-  } as RetryOptions
+    backoffBase: 1000,
+  } as RetryOptions,
 }
 
 const sequelize = new Sequelize({ ...config, ...sequelizeOptions })
@@ -30,23 +31,32 @@ sequelize
 // Initialise Sequelize models
 Game.init(gameModelAttributes, {
   sequelize,
-  tableName: 'game'
+  tableName: 'game',
 })
 Player.init(playerModelAttributes, {
   sequelize,
-  tableName: 'player'
+  tableName: 'player',
 })
 Guard.init(guardModelAttributes, {
   sequelize,
-  tableName: 'guard'
+  tableName: 'guard',
+})
+Death.init(deathModelAttributes, {
+  sequelize,
+  tableName: 'death',
 })
 
 // Sequelize entity relations / associations etc
 Game.hasMany(Guard, { as: 'guards' })
 Guard.belongsTo(Game, { as: 'game' })
 
-export {
-  Game,
-  Player,
-  Guard
-}
+Player.hasOne(Death, { as: 'death', foreignKey: 'playerId' })
+Death.belongsTo(Player, { as: 'player' })
+
+Guard.hasMany(Death, { as: 'kills' })
+Death.belongsTo(Guard, { as: 'guard' })
+
+Game.hasMany(Death, { as: 'deaths' })
+Death.belongsTo(Game, { as: 'game' })
+
+export { Game, Player, Guard, Death }

@@ -1,14 +1,18 @@
-import logger from './logger'
-import { Player } from '../models'
+import { Death } from '../models'
 import { HttpError } from '../middlewares'
+import { DeathSyncDto } from '../dtos'
+import { MockbinFacade } from '../facades'
+import logger from './logger'
 
-export const getAll = async (): Promise<Player[]> => {
-  return Player.findAll({ where: {}, order: [['id', 'DESC']] })
+const mockbinFacade = new MockbinFacade()
+
+export const getAll = async (): Promise<Death[]> => {
+  return Death.findAll({ where: {}, order: [['id', 'DESC']] })
 }
 
-export const getById = async (id: number): Promise<Player> => {
+export const getById = async (id: number): Promise<Death> => {
   if (Number.isInteger(id)) {
-    const data = await Player.findByPk(id, {})
+    const data = await Death.findByPk(id, {})
     if (data) {
       return data
     } else {
@@ -21,27 +25,32 @@ export const getById = async (id: number): Promise<Player> => {
   }
 }
 
-export const create = async (
-  params: Pick<Player, 'number' | 'name'>
-): Promise<Player> => {
+export const sync = async (): Promise<DeathSyncDto> => {
   try {
-    const data = await Player.create(params, {})
-    return data
-  } catch (err) {
-    logger(`Error. ${err}`, 'error')
-    throw new HttpError(400, err.message)
-  }
-}
+    let created = 0
+    const data = await mockbinFacade.getDeaths()
+    await Promise.all(
+      data.map(async (item) => {
+        try {
+          await Death.create(
+            {
+              uid: item.uid,
+              playerId: item.playerId,
+              guardId: item.guardId,
+              gameId: item.gameId,
+              createdAt: new Date(item.createdAt),
+              updatedAt: new Date(item.updatedAt),
+            },
+            {}
+          )
+          created++
+        } catch (err) {}
+      })
+    )
 
-export const upsert = async (
-  params: Pick<Player, 'id' | 'number' | 'name'>
-): Promise<Player> => {
-  try {
-    const [data] = await Player.upsert(params)
-    return data
+    return new DeathSyncDto({ created })
   } catch (err) {
     logger(`Error. ${err}`, 'error')
-    const { message } = err
-    throw new HttpError(400, message)
+    throw new HttpError(503, 'Service unavailable')
   }
 }

@@ -102,6 +102,15 @@ http://localhost:3000/docs
 
 ### Candidate notes
 
+- Never seen the series;
+- Unclear condition for deaths. Who should own a prize after a player's death? A guard who killed him?
+
+### Improvements
+
 - Add prettier/eslint integration;
 - Introduce services and move the business logic out of route controllers;
 - Add error handling;
+- Add facade for requesting mockbin entities;
+- Add facade data caching to reduce amout of requests and waiting time;
+- Add death entity, 3rd party integration and syncing, endpoints;
+- Fix openapi documenation for new endpoints;

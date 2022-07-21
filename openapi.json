@@ -465,7 +465,6 @@
     "/api/v1.0/death": {
       "get": {
         "description": "Get a list of all Deaths",
-        "produces": ["application/json"],
         "tags": ["death"],
         "security": [
           {
@@ -474,10 +473,10 @@
         ],
         "responses": {
           "200": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "data": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
                   "type": "array",
                   "items": {
                     "$ref": "#/definitions/Death"
@@ -487,58 +486,11 @@
             }
           }
         }
-      },
-      "post": {
-        "description": "Create a Death",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/definitions/Death"
-              }
-            }
-          }
-        },
-        "produces": ["application/json"],
-        "tags": ["death"],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "$ref": "#/definitions/Death"
-              }
-            }
-          },
-          "400": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          }
-        }
-      },
+      }
+    },
+    "/api/v1.0/death/sync": {
       "put": {
-        "description": "Update a Death",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/definitions/Death"
-              }
-            }
-          }
-        },
-        "produces": ["application/json"],
+        "description": "Sync entity records with 3rd party data feed",
         "tags": ["death"],
         "security": [
           {
@@ -547,18 +499,22 @@
         ],
         "responses": {
           "200": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "$ref": "#/definitions/Death"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/DeathSyncDto"
+                }
               }
             }
           },
-          "400": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "$ref": "#/definitions/Error"
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/HttpError"
+                }
               }
             }
           }
@@ -579,7 +535,6 @@
             }
           }
         ],
-        "produces": ["application/json"],
         "tags": ["death"],
         "security": [
           {
@@ -588,26 +543,32 @@
         ],
         "responses": {
           "200": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "$ref": "#/definitions/Death"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/Death"
+                }
               }
             }
           },
           "400": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "$ref": "#/definitions/Error"
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/HttpError"
+                }
               }
             }
           },
           "404": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "$ref": "#/definitions/Error"
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/HttpError"
+                }
               }
             }
           }
@@ -619,6 +580,17 @@
     "Error": {
       "type": "object",
       "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "HttpError": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer"
+        },
         "message": {
           "type": "string"
         }
@@ -684,9 +656,24 @@
           "format": "uuid"
         },
         "number": {
-          "type": "integer"
+          "type": "string"
         },
         "name": {
+          "type": "string"
+        },
+        "dept": {
+          "type": "integer"
+        },
+        "dob": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "phone": {
           "type": "string"
         },
         "createdAt": {
@@ -709,12 +696,6 @@
           "type": "string",
           "format": "uuid"
         },
-        "number": {
-          "type": "integer"
-        },
-        "name": {
-          "type": "string"
-        },
         "createdAt": {
           "type": "string",
           "format": "date-time"
@@ -722,6 +703,14 @@
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "DeathSyncDto": {
+      "type": "object",
+      "properties": {
+        "created": {
+          "type": "integer"
         }
       }
     }
