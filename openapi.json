@@ -574,6 +574,29 @@
           }
         }
       }
+    },
+    "/api/v1.0/winner": {
+      "get": {
+        "description": "Calculate a Winner per game",
+        "tags": ["winner"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/WinnerDto"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -710,6 +733,20 @@
       "type": "object",
       "properties": {
         "created": {
+          "type": "integer"
+        }
+      }
+    },
+    "WinnerDto": {
+      "type": "object",
+      "properties": {
+        "game": {
+          "$ref": "#/definitions/Game"
+        },
+        "player": {
+          "$ref": "#/definitions/Player"
+        },
+        "prize": {
           "type": "integer"
         }
       }

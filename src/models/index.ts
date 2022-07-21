@@ -17,7 +17,7 @@ const sequelizeOptions: Options = {
   } as RetryOptions,
 }
 
-const sequelize = new Sequelize({ ...config, ...sequelizeOptions })
+export const sequelize = new Sequelize({ ...config, ...sequelizeOptions })
 
 // Synchronise models (info: the sync() method will sync your entity models with the postgress database without the need for migrations)
 sequelize
