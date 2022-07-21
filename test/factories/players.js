@@ -23,6 +23,11 @@ const createPlayer = (testCase = false) => {
       })
     ),
     name: Faker.name.firstName() + ' ' + Faker.name.lastName(),
+    debt: Faker.datatype.number(10000),
+    dob: Faker.datatype.string(16),
+    address: Faker.address.streetAddress(true),
+    city: Faker.address.city(),
+    phone: Faker.phone.phoneNumber('+### ### ### ###'),
     createdAt: new Date(),
     updatedAt: new Date(),
   }
