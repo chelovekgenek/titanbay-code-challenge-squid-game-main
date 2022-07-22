@@ -1,17 +1,14 @@
-import { getAllPerGame } from './winner'
+import { calc } from './winner'
 import { sequelize, Player, Game } from '../models'
 import { createPlayer } from '../../test/factories/players'
-import { createGame } from '../../test/factories/games'
+import { HttpError } from '../middlewares'
 
 jest.mock('../models', () => ({
   sequelize: {
     query: jest.fn(),
   },
   Player: {
-    findOne: jest.fn(),
-  },
-  Game: {
-    findOne: jest.fn(),
+    findByPk: jest.fn(),
   },
 }))
 
@@ -19,37 +16,54 @@ describe('Winner Service', () => {
   beforeEach(() => {
     jest.resetAllMocks()
   })
-  describe('getAllPerGame', () => {
+  describe('calc', () => {
     it('should return a list of WinnerDto', async () => {
       const player = { ...createPlayer(true), id: 1 } as Player
-      const game1 = { ...createGame(true), id: 11 } as Game
-      const game2 = { ...createGame(true), id: 12 } as Game
-      const dto1 = {
-        prize: 111,
-        player,
-        game: game1,
-      }
-      const dto2 = { prize: 112, player, game: game2 }
-      const query = [
-        { winner_id: player.id, game_id: game1.id, prize: dto1.prize },
-        { winner_id: player.id, game_id: game2.id, prize: dto2.prize },
+      const qresult1 = [
+        {
+          player_id: player.id,
+        },
+      ]
+      const qresult2 = [
+        {
+          prize: 111,
+          game_id: 1,
+        },
+        { prize: 112, game_id: 2 },
       ]
 
-      jest.spyOn(sequelize, 'query').mockResolvedValue(query as any)
-      jest.spyOn(Player, 'findOne').mockResolvedValue(player)
-      jest
-        .spyOn(Game, 'findOne')
-        .mockResolvedValueOnce(game1)
-        .mockResolvedValueOnce(game2)
+      jest.spyOn(sequelize, 'query').mockResolvedValueOnce(qresult1 as any)
+      jest.spyOn(sequelize, 'query').mockResolvedValueOnce(qresult2 as any)
+      jest.spyOn(Player, 'findByPk').mockResolvedValue(player)
 
-      await expect(getAllPerGame()).resolves.toEqual([dto1, dto2])
+      await expect(calc()).resolves.toEqual({ player, prize: 223 })
 
-      expect(sequelize.query).toHaveBeenCalledTimes(1)
-      expect(Player.findOne).toHaveBeenCalledTimes(1)
-      expect(Player.findOne).toHaveBeenCalledWith({
-        where: { id: String(player.id) }, // Object.keys in original function returning array keys as string
-      })
-      expect(Game.findOne).toHaveBeenCalledTimes(2)
+      expect(sequelize.query).toHaveBeenCalledTimes(2)
+      expect(Player.findByPk).toHaveBeenCalledTimes(1)
+      expect(Player.findByPk).toHaveBeenCalledWith(qresult1[0].player_id, {})
+    })
+
+    it('should throw 404 if no winner found', async () => {
+      const player = { ...createPlayer(true), id: 1 } as Player
+      const qresult1 = []
+      const qresult2 = [
+        {
+          prize: 111,
+          game_id: 1,
+        },
+        { prize: 112, game_id: 2 },
+      ]
+
+      jest.spyOn(sequelize, 'query').mockResolvedValueOnce(qresult1 as any)
+      jest.spyOn(sequelize, 'query').mockResolvedValueOnce(qresult2 as any)
+      jest.spyOn(Player, 'findByPk').mockResolvedValue(player)
+
+      await expect(calc()).rejects.toThrowError(
+        new HttpError(404, 'No winner in this game!')
+      )
+
+      expect(sequelize.query).toHaveBeenCalledTimes(2)
+      expect(Player.findByPk).toHaveBeenCalledTimes(0)
     })
   })
 })

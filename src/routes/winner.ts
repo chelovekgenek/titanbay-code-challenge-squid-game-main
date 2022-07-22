@@ -11,7 +11,7 @@ export const winnerRouter: Router = Router()
 winnerRouter.get(
   '/',
   asyncHandler(async (_req: Request, res: Response) => {
-    const data = await winnerService.getAllPerGame()
+    const data = await winnerService.calc()
 
     res.send(data)
   })

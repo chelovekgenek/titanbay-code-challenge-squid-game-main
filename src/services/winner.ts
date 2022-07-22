@@ -1,33 +1,26 @@
 import { QueryTypes } from 'sequelize'
 import { WinnerDto } from '../dtos'
-import { Game, Player, sequelize } from '../models'
-import { WinnerPerGameResult, WINNER_PER_GAME_QUERY } from './winner.types'
+import { HttpError } from '../middlewares'
+import { Player, sequelize } from '../models'
+import {
+  WINNERS_QUERY,
+  PRIZE_PER_GAME_QUERY,
+  WinnersResult,
+  PrizePerGameResult,
+} from './winner.types'
 
-export const getAllPerGame = async (): Promise<WinnerDto[]> => {
-  const result = await sequelize.query<WinnerPerGameResult>(
-    WINNER_PER_GAME_QUERY,
-    { type: QueryTypes.SELECT }
-  )
+export const calc = async (): Promise<WinnerDto> => {
+  const [[winner], prizePerGame] = await Promise.all([
+    sequelize.query<WinnersResult>(WINNERS_QUERY, { type: QueryTypes.SELECT }),
+    sequelize.query<PrizePerGameResult>(PRIZE_PER_GAME_QUERY, {
+      type: QueryTypes.SELECT,
+    }),
+  ])
 
-  const distinctPlayers = result.reduce<Record<number, undefined | Player>>(
-    (acc, item) => ({ ...acc, [item.winner_id]: undefined }),
-    {}
-  )
-  await Promise.all(
-    Object.keys(distinctPlayers).map(async (id) => {
-      distinctPlayers[id] = await Player.findOne({ where: { id } })
-      return id
-    })
-  )
+  if (!winner) throw new HttpError(404, 'No winner in this game!')
 
-  return Promise.all(
-    result.map(
-      async (item) =>
-        new WinnerDto({
-          game: await Game.findOne({ where: { id: item.game_id } }),
-          player: distinctPlayers[item.winner_id],
-          prize: item.prize,
-        })
-    )
-  )
+  return new WinnerDto({
+    player: await Player.findByPk(winner.player_id, {}),
+    prize: prizePerGame.reduce((acc, item) => acc + item.prize, 0),
+  })
 }

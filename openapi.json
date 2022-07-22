@@ -740,9 +740,6 @@
     "WinnerDto": {
       "type": "object",
       "properties": {
-        "game": {
-          "$ref": "#/definitions/Game"
-        },
         "player": {
           "$ref": "#/definitions/Player"
         },
