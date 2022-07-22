@@ -1,11 +1,11 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import { Optional } from 'sequelize'
 
 import { Player } from '../src/models/player'
 
 import { createPlayer } from './factories/players'
 
 class PlayerMock {
-  public createObjectByConstructor(opts: Player) {
+  public createObjectByConstructor(opts: Optional<any, string>) {
     new Player(opts)
   }
 }
@@ -23,8 +23,14 @@ describe('Test Players', () => {
     expect(Player).toBeCalledWith(expect.objectContaining(player))
 
     expect(typeof player.uid).toBe('string')
-    expect(typeof player.number).toBe('number')
+    expect(typeof player.number).toBe('string')
+    expect(player.number.length).toBe(3)
     expect(typeof player.name).toBe('string')
+    expect(typeof player.debt).toBe('number')
+    expect(typeof player.dob).toBe('string')
+    expect(typeof player.address).toBe('string')
+    expect(typeof player.city).toBe('string')
+    expect(typeof player.phone).toBe('string')
     expect(player.createdAt instanceof Date).toBe(true)
     expect(player.updatedAt instanceof Date).toBe(true)
 

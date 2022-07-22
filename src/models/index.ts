@@ -10,6 +10,7 @@ import { Death, deathModelAttributes } from './death'
 const config = require(__dirname + '/../config/config.js')[process.env.NODE_ENV]
 
 const sequelizeOptions: Options = {
+  dialect: 'postgres',
   retry: {
     match: [/ConnectionError/, /ConnectionRefusedError/, /ECONNREFUSED/],
     max: 10,

@@ -1,11 +1,10 @@
-import { Sequelize, DataTypes } from 'sequelize'
-
+import { Optional } from 'sequelize/types'
 import { Game } from '../src/models/game'
 
 import { createGame } from './factories/games'
 
 class GameMock {
-  public createObjectByConstructor(opts: Game) {
+  public createObjectByConstructor(opts: Optional<any, string>) {
     new Game(opts)
   }
 }

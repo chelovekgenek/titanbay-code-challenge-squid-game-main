@@ -4,24 +4,25 @@ import { DeathSyncDto } from '../dtos'
 import { MockbinFacade } from '../facades'
 import logger from './logger'
 
-const mockbinFacade = new MockbinFacade()
+// exporting because it's hardly to mock for tests without dependency injection
+export const mockbinFacade = new MockbinFacade()
 
 export const getAll = async (): Promise<Death[]> => {
   return Death.findAll({ where: {}, order: [['id', 'DESC']] })
 }
 
 export const getById = async (id: number): Promise<Death> => {
-  if (Number.isInteger(id)) {
-    const data = await Death.findByPk(id, {})
-    if (data) {
-      return data
-    } else {
-      logger('Error. Unknown data', 'error')
-      throw new HttpError(404, 'Unknown data')
-    }
-  } else {
+  if (!Number.isInteger(id)) {
     logger('Error. Expected ID', 'error')
     throw new HttpError(400, 'Expected ID')
+  }
+
+  const data = await Death.findByPk(id, {})
+  if (data) {
+    return data
+  } else {
+    logger('Error. Unknown data', 'error')
+    throw new HttpError(404, 'Unknown data')
   }
 }
 

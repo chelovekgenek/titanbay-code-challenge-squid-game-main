@@ -1,11 +1,11 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import { Optional } from 'sequelize'
 
 import { Guard } from '../src/models/guard'
 
 import { createGuard } from './factories/guards'
 
 class GuardMock {
-  public createObjectByConstructor(opts: Guard) {
+  public createObjectByConstructor(opts: Optional<any, string>) {
     new Guard(opts)
   }
 }
